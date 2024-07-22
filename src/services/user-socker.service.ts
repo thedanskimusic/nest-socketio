@@ -77,11 +77,8 @@ export class UserSocketService {
     return name;
   }
 
-  userMap(): Map<SocketId, User> {
-    return this.users;
-  }
-
   consoleUserMap(): void {
+    console.log({'====> Users Connected': this.users.size})
     this.users.forEach((user: User)=>{
       console.log(user.name, user.socketId);
     })
