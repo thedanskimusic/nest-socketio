@@ -58,14 +58,4 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket.nsp.emit(CHAT_MESSAGE, `[${this.userSocketService.getUserName(socket.id)}] ${msg}`);
     }
   }
-
-  @SubscribeMessage('events')
-  findAll(@MessageBody() data: any): Observable<WsResponse<number>> {
-    return from([1, 2, 3]).pipe(map(item => ({ event: 'events', data: item })));
-  }
-
-  @SubscribeMessage('identity')
-  async identity(@MessageBody() data: number): Promise<number> {
-    return data;
-  }
 }
