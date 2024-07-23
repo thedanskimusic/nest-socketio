@@ -10,6 +10,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { UserSocketService } from 'src/services/user-socker.service';
 import { SocketConstants } from 'src/constants';
+import { UserPreferenceService } from 'src/services/user-preference.service';
 
 const CHAT_MESSAGE = SocketConstants.CHAT_MESSAGE;
 
@@ -24,7 +25,10 @@ const CHAT_MESSAGE = SocketConstants.CHAT_MESSAGE;
 })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
-  constructor(private readonly userSocketService: UserSocketService){}
+  constructor(
+    private readonly userSocketService: UserSocketService,
+    private readonly userPreferenceService: UserPreferenceService
+  ){}
 
   @WebSocketServer()
   server: Server;
@@ -32,6 +36,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleConnection(@ConnectedSocket() socket: Socket) {
     const name = this.userSocketService.registeruser(socket.id);
     socket.nsp.emit(CHAT_MESSAGE, `[${name}] Welcome`);
+    socket.nsp.sockets.get(socket.id).emit(CHAT_MESSAGE,`## Current commands available`);
+    socket.nsp.sockets.get(socket.id).emit(CHAT_MESSAGE,`\\update-name [name:string]`);
+    socket.nsp.sockets.get(socket.id).emit(CHAT_MESSAGE,`\\update-color [color:string]`);
     this.userSocketService.consoleUserMap();
   }  
   handleDisconnect(@ConnectedSocket() socket: Socket) {
@@ -48,6 +55,15 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if( namesUpdated ){
       socket.nsp.emit(CHAT_MESSAGE, `[${namesUpdated.oldName} is hereby known as ${namesUpdated.newName}]`);
       socket.nsp.sockets.get(socket.id).emit(CHAT_MESSAGE, ` -- Updated name successfully to ${namesUpdated.newName}`);
+      validCommand = true;
+    }
+
+    const updatePreference = this.userPreferenceService.updateCommand(socket.id, msg);
+    if( updatePreference ){
+      socket.nsp.sockets.get(socket.id).emit(CHAT_MESSAGE, 
+        ` -- Updated prefences`
+      );
+      socket.nsp.sockets.get(socket.id).emit('user preferences', this.userSocketService.getUser(socket.id).preferences);
       validCommand = true;
     }
 

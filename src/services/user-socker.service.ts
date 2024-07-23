@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { faker } from '@faker-js/faker';
 
+export type UserPreference = {
+  color?: string | undefined 
+}
 export type User  = {
   name: string;
   socketId: string;
+  preferences: UserPreference;
 }
 
 export type NamePair = {
@@ -26,11 +30,7 @@ export class UserSocketService {
 
   private updateUserName(socketId: string, name: string): NamePair {
     const oldName = this.getUserName(socketId);
-    const updatedUser = {
-      socketId,
-      name
-    }
-    this.users.set(socketId, updatedUser);
+    this.users.get(socketId).name = name; // Update the user object
     const newName = this.getUserName(socketId);
     return {
       oldName,
@@ -65,7 +65,8 @@ export class UserSocketService {
     const firstname = faker.person.firstName();
     const user: User = {
       socketId: socketId,
-      name: firstname
+      name: firstname,
+      preferences: {}
     }
     this.users.set(socketId, user);
     return firstname;
@@ -82,5 +83,13 @@ export class UserSocketService {
     this.users.forEach((user: User)=>{
       console.log(user.name, user.socketId);
     })
+  }
+
+  getUser(socketId: string): User {
+    return this.users.get(socketId);
+  }
+
+  setUser(socketId: string, user: User): void {
+    this.users.set(socketId, user);
   }
 }
