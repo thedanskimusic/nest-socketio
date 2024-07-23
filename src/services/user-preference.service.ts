@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { User, UserSocketService } from './user-socker.service';
+import { SocketConstants } from '../constants';
+
+const COLOR = SocketConstants.COLOR;
 
 @Injectable()
 export class UserPreferenceService {
@@ -29,19 +32,19 @@ export class UserPreferenceService {
     if( !colorRes ) return false;
     switch(colorRes) { 
       case 'blue': { 
-         user.preferences.color = 'blue'
+         user.preferences.color = COLOR.BLUE
          break;
       }
       case 'green': { 
-        user.preferences.color = 'green'
+        user.preferences.color = COLOR.GREEN
         break;
       }
       case 'red': { 
-         user.preferences.color = 'red'
+         user.preferences.color = COLOR.RED
          break; 
       } 
       default: { 
-         user.preferences.color = 'black'
+         user.preferences.color = COLOR.BLACK
          break; 
       } 
    }
